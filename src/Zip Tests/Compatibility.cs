@@ -2580,6 +2580,11 @@ namespace Ionic.Zip.Tests
             _Extract_ZipFile("Calendar.apk");
         }
 
+        [TestMethod]
+        public void Extract_SharpZipLib_WithHeader()
+        {
+            _Extract_ZipFile("sharpzip-withheader.zip");
+        }
 
         private void _Extract_ZipFile(string fileName)
         {

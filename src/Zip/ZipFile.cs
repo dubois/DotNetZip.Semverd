@@ -2296,6 +2296,18 @@ namespace Ionic.Zip
         }
 #endif
 
+        /// <summary>
+        ///   Stream position of the start of the archive.
+        ///   This is only non-zero for embedded .zip files.
+        ///   Its value is not well defined for multiple-disk archives.
+        /// </summary>
+        public long StartOfArchive
+        {
+            get
+            {
+                return _locStartOfArchive;
+            }
+        }
 
         /// <summary>Provides a string representation of the instance.</summary>
         /// <returns>a string representation of the instance.</returns>
@@ -3629,6 +3641,7 @@ namespace Ionic.Zip
         private EncryptionAlgorithm _Encryption;
         private bool _JustSaved;
         private long _locEndOfCDS = -1;
+        private long _locStartOfArchive = 0;
         private uint _OffsetOfCentralDirectory;
         private Int64 _OffsetOfCentralDirectory64;
         private Nullable<bool> _OutputUsesZip64;

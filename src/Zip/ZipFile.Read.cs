@@ -625,9 +625,44 @@ namespace Ionic.Zip
                     }
                     else
                     {
+                        // With some zip files, offset32 is not an absolute position; it is
+                        // a position relative to the first file header. This can happen with
+                        // streaming zip writers (eg: SharpZipLib.ZipOutputStream), who might
+                        // not even know their absolute position in the stream.
+                        //
+                        // Detct this by cross-checking offset32 vs a calculation based on the size
+                        // of the directory. This calculation only works if there is no zip64 data.
+
+                        s.Seek(zf._locEndOfCDS - 20, SeekOrigin.Begin);  // size of Zip64 locator
+                        bool maybeZip64 = (ReadFirstFourBytes(s) == ZipConstants.Zip64EndOfCentralDirectoryLocatorSignature);
+
+                        long calculatedStartOfCDS;  // will be == offset32 except if embedded
+                        if (maybeZip64)
+                        {
+                            // Not possible to calculate the start; so assume not embedded?
+                            calculatedStartOfCDS = offset32;
+                        }
+                        else
+                        {
+                            calculatedStartOfCDS = zf._locEndOfCDS - sizeOfCentralDirectory;
+                        }
+
+                        zf._locStartOfArchive = calculatedStartOfCDS - offset32;
+
+                        if (zf._locStartOfArchive < 0)
+                        {
+                            throw new ZipException("Inconsistent central directory location");
+                        }
+                        if (zf._locStartOfArchive > 0 && zf.Verbose)
+                        {
+                            zf._StatusMessageTextWriter.WriteLine(
+                                    "Detected embedded zip @ {0}", zf._locStartOfArchive);
+                        }
                         zf._OffsetOfCentralDirectory = offset32;
+
                         // change for workitem 8098
-                        s.Seek(offset32, SeekOrigin.Begin);
+                        s.Seek(zf._locStartOfArchive + zf._OffsetOfCentralDirectory,
+                               SeekOrigin.Begin);
                     }
 
                     ReadCentralDirectory(zf);

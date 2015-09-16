@@ -252,6 +252,7 @@ namespace Ionic.Zip
             zde._ExternalFileAttrs = block[i++] + block[i++] * 256 + block[i++] * 256 * 256 + block[i++] * 256 * 256 * 256;
 
             zde._RelativeOffsetOfLocalHeader = (uint)(block[i++] + block[i++] * 256 + block[i++] * 256 * 256 + block[i++] * 256 * 256 * 256);
+            zde._RelativeOffsetOfLocalHeader += zf.StartOfArchive;
 
             // workitem 7801
             zde.IsText = ((zde._InternalFileAttrs & 0x01) == 0x01);
