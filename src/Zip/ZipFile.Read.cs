@@ -616,10 +616,10 @@ namespace Ionic.Zip
 
                     zf._diskNumberWithCd++; // I think the number in the file differs from reality by 1
 
-                    int i = 12;
-
-                    uint offset32 = (uint) BitConverter.ToUInt32(block, i);
-                    if (offset32 == 0xFFFFFFFF)
+                    ushort totalEntries = (ushort) BitConverter.ToUInt16(block, 6);
+                    uint sizeOfCentralDirectory = (uint)BitConverter.ToUInt32(block, 8);
+                    uint offset32 = (uint) BitConverter.ToUInt32(block, 12);
+                    if (offset32 == 0xFFFFFFFF || totalEntries == 0xFFFF || sizeOfCentralDirectory == 0xFFFFFFFF)
                     {
                         Zip64SeekToCentralDirectory(zf);
                     }
